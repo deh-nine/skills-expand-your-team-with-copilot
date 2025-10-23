@@ -470,6 +470,11 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+    
+    // Update calendar view if it's active
+    if (currentView === "calendar") {
+      renderCalendarView();
+    }
   }
 
   // Function to render a single activity card
@@ -860,6 +865,344 @@ document.addEventListener("DOMContentLoaded", () => {
     setDayFilter,
     setTimeRangeFilter,
   };
+
+  // ============ CALENDAR VIEW FUNCTIONALITY ============
+  
+  const calendarViewContainer = document.getElementById("calendar-view");
+  const cardViewBtn = document.getElementById("card-view-btn");
+  const calendarViewBtn = document.getElementById("calendar-view-btn");
+  let currentView = "card"; // "card" or "calendar"
+
+  // View toggle handlers
+  cardViewBtn.addEventListener("click", () => {
+    switchToView("card");
+  });
+
+  calendarViewBtn.addEventListener("click", () => {
+    switchToView("calendar");
+  });
+
+  function switchToView(view) {
+    currentView = view;
+    
+    if (view === "card") {
+      activitiesList.classList.remove("hidden");
+      calendarViewContainer.classList.add("hidden");
+      cardViewBtn.classList.add("active");
+      calendarViewBtn.classList.remove("active");
+    } else {
+      activitiesList.classList.add("hidden");
+      calendarViewContainer.classList.remove("hidden");
+      cardViewBtn.classList.remove("active");
+      calendarViewBtn.classList.add("active");
+      renderCalendarView();
+    }
+  }
+
+  function renderCalendarView() {
+    // Clear existing calendar
+    calendarViewContainer.innerHTML = "";
+
+    // Get filtered activities (same as card view)
+    let filteredActivities = {};
+    
+    Object.entries(allActivities).forEach(([name, details]) => {
+      const activityType = getActivityType(name, details.description);
+
+      // Apply category filter
+      if (currentFilter !== "all" && activityType !== currentFilter) {
+        return;
+      }
+
+      // Apply weekend filter if selected
+      if (currentTimeRange === "weekend" && details.schedule_details) {
+        const activityDays = details.schedule_details.days;
+        const isWeekendActivity = activityDays.some((day) =>
+          timeRanges.weekend.days.includes(day)
+        );
+
+        if (!isWeekendActivity) {
+          return;
+        }
+      }
+
+      // Apply search filter
+      const searchableContent = [
+        name.toLowerCase(),
+        details.description.toLowerCase(),
+        formatSchedule(details).toLowerCase(),
+      ].join(" ");
+
+      if (
+        searchQuery &&
+        !searchableContent.includes(searchQuery.toLowerCase())
+      ) {
+        return;
+      }
+
+      // Activity passed all filters, add to filtered list
+      filteredActivities[name] = details;
+    });
+
+    // Check if there are any results
+    if (Object.keys(filteredActivities).length === 0) {
+      calendarViewContainer.innerHTML = `
+        <div class="calendar-no-activities">
+          <h4>No activities found</h4>
+          <p>Try adjusting your search or filter criteria</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Create calendar structure
+    const calendarContainer = document.createElement("div");
+    calendarContainer.className = "calendar-container";
+
+    // Days of the week (Sunday to Saturday)
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    // Create header
+    const calendarHeader = document.createElement("div");
+    calendarHeader.className = "calendar-header";
+    
+    // Time label column
+    const timeLabel = document.createElement("div");
+    timeLabel.className = "calendar-day-header time-label";
+    timeLabel.textContent = "Time";
+    calendarHeader.appendChild(timeLabel);
+    
+    // Day headers
+    daysOfWeek.forEach(day => {
+      const dayHeader = document.createElement("div");
+      dayHeader.className = "calendar-day-header";
+      dayHeader.textContent = day;
+      calendarHeader.appendChild(dayHeader);
+    });
+    
+    calendarContainer.appendChild(calendarHeader);
+
+    // Find the time range for activities
+    const { startHour, endHour } = getTimeRange(filteredActivities);
+    
+    // Create grid for each hour slot
+    const calendarGrid = document.createElement("div");
+    calendarGrid.className = "calendar-grid";
+    calendarGrid.style.gridTemplateRows = `repeat(${endHour - startHour + 1}, auto)`;
+    
+    // Create time slots and day columns
+    for (let hour = startHour; hour <= endHour; hour++) {
+      // Time label
+      const timeSlot = document.createElement("div");
+      timeSlot.className = "calendar-time-slot";
+      timeSlot.textContent = formatHourLabel(hour);
+      calendarGrid.appendChild(timeSlot);
+      
+      // Day columns for this hour
+      daysOfWeek.forEach(day => {
+        const dayColumn = document.createElement("div");
+        dayColumn.className = "calendar-day-column";
+        dayColumn.dataset.day = day;
+        dayColumn.dataset.hour = hour;
+        calendarGrid.appendChild(dayColumn);
+      });
+    }
+    
+    calendarContainer.appendChild(calendarGrid);
+    
+    // Place activities in the calendar
+    placeActivitiesInCalendar(filteredActivities, calendarGrid, daysOfWeek, startHour, endHour);
+    
+    calendarViewContainer.appendChild(calendarContainer);
+  }
+
+  function getTimeRange(activities) {
+    let earliestHour = 24;
+    let latestHour = 0;
+    
+    Object.values(activities).forEach(details => {
+      if (details.schedule_details) {
+        const startHour = parseInt(details.schedule_details.start_time.split(":")[0], 10);
+        const endHour = parseInt(details.schedule_details.end_time.split(":")[0], 10);
+        
+        earliestHour = Math.min(earliestHour, startHour);
+        latestHour = Math.max(latestHour, endHour);
+      }
+    });
+    
+    // Default to 6 AM - 8 PM if no activities
+    if (earliestHour === 24) earliestHour = 6;
+    if (latestHour === 0) latestHour = 20;
+    
+    return { startHour: earliestHour, endHour: latestHour };
+  }
+
+  function formatHourLabel(hour) {
+    const period = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour % 12 || 12;
+    return `${displayHour} ${period}`;
+  }
+
+  function placeActivitiesInCalendar(activities, grid, daysOfWeek, startHour, endHour) {
+    // Group activities by day and time to detect overlaps
+    const activitiesByDayTime = {};
+    
+    Object.entries(activities).forEach(([name, details]) => {
+      if (!details.schedule_details) return;
+      
+      const { days, start_time, end_time } = details.schedule_details;
+      
+      days.forEach(day => {
+        if (!activitiesByDayTime[day]) {
+          activitiesByDayTime[day] = [];
+        }
+        
+        activitiesByDayTime[day].push({
+          name,
+          details,
+          start_time,
+          end_time
+        });
+      });
+    });
+    
+    // Render activities for each day
+    daysOfWeek.forEach((day, dayIndex) => {
+      if (!activitiesByDayTime[day]) return;
+      
+      const dayActivities = activitiesByDayTime[day];
+      
+      // Sort by start time
+      dayActivities.sort((a, b) => a.start_time.localeCompare(b.start_time));
+      
+      // Detect overlaps and assign positions
+      const lanes = [];
+      dayActivities.forEach(activity => {
+        // Find a lane where this activity can fit
+        let laneIndex = 0;
+        while (laneIndex < lanes.length) {
+          const lastInLane = lanes[laneIndex][lanes[laneIndex].length - 1];
+          if (lastInLane.end_time <= activity.start_time) {
+            break;
+          }
+          laneIndex++;
+        }
+        
+        if (laneIndex === lanes.length) {
+          lanes.push([]);
+        }
+        
+        lanes[laneIndex].push(activity);
+        activity.lane = laneIndex;
+        activity.totalLanes = lanes.length;
+      });
+      
+      // Update total lanes for all activities
+      dayActivities.forEach(activity => {
+        activity.totalLanes = lanes.length;
+      });
+      
+      // Render each activity
+      dayActivities.forEach(activity => {
+        const activityElement = createCalendarActivityElement(activity, startHour, endHour);
+        
+        // Calculate position
+        const startMinutes = timeToMinutes(activity.start_time);
+        const endMinutes = timeToMinutes(activity.end_time);
+        const durationHours = (endMinutes - startMinutes) / 60;
+        
+        const startOffsetHours = (startMinutes - (startHour * 60)) / 60;
+        
+        // Grid positioning: row starts at time slot + 1 (header is row 1)
+        const rowStart = Math.floor(startOffsetHours) + 1;
+        const rowEnd = rowStart + Math.ceil(durationHours);
+        
+        // Column is day index + 2 (first column is time labels)
+        const colStart = dayIndex + 2;
+        
+        activityElement.style.gridRow = `${rowStart} / ${rowEnd}`;
+        activityElement.style.gridColumn = `${colStart}`;
+        
+        // Handle overlapping activities - adjust width and position
+        if (activity.totalLanes > 1) {
+          const widthPercent = 100 / activity.totalLanes;
+          const leftPercent = widthPercent * activity.lane;
+          activityElement.style.width = `${widthPercent - 1}%`;
+          activityElement.style.left = `${leftPercent}%`;
+          activityElement.style.right = 'auto';
+        }
+        
+        // Add to grid
+        grid.appendChild(activityElement);
+      });
+    });
+  }
+
+  function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(":").map(val => parseInt(val, 10));
+    return hours * 60 + minutes;
+  }
+
+  function createCalendarActivityElement(activity, startHour, endHour) {
+    const { name, details, start_time, end_time } = activity;
+    
+    const activityType = getActivityType(name, details.description);
+    const typeInfo = activityTypes[activityType];
+    
+    const takenSpots = details.participants.length;
+    const totalSpots = details.max_participants;
+    
+    const activityDiv = document.createElement("div");
+    activityDiv.className = "calendar-activity";
+    activityDiv.style.backgroundColor = typeInfo.color;
+    activityDiv.style.color = typeInfo.textColor;
+    activityDiv.style.borderLeftColor = typeInfo.textColor;
+    
+    // Calculate position
+    const startMinutes = timeToMinutes(start_time);
+    const endMinutes = timeToMinutes(end_time);
+    const startOffset = (startMinutes - (startHour * 60)) / 60;
+    const duration = (endMinutes - startMinutes) / 60;
+    
+    activityDiv.innerHTML = `
+      <div class="calendar-activity-title">${name}</div>
+      <div class="calendar-activity-enrollment">${takenSpots}/${totalSpots}</div>
+      <div class="tooltip-text"></div>
+    `;
+    
+    // Create detailed tooltip
+    const tooltip = activityDiv.querySelector(".tooltip-text");
+    tooltip.innerHTML = `
+      <strong>${name}</strong><br>
+      <em>${typeInfo.label}</em><br>
+      ${details.description}<br>
+      <br>
+      <strong>Time:</strong> ${formatSchedule(details)}<br>
+      <strong>Enrollment:</strong> ${takenSpots}/${totalSpots} students
+    `;
+    
+    // Position tooltip on hover
+    activityDiv.addEventListener("mouseenter", (e) => {
+      requestAnimationFrame(() => {
+        const rect = activityDiv.getBoundingClientRect();
+        tooltip.style.top = `${rect.top}px`;
+        tooltip.style.left = `${rect.right + 10}px`;
+        
+        // Check if tooltip would go off screen
+        requestAnimationFrame(() => {
+          const tooltipRect = tooltip.getBoundingClientRect();
+          if (tooltipRect.right > window.innerWidth) {
+            tooltip.style.left = `${rect.left - tooltipRect.width - 10}px`;
+          }
+          if (tooltipRect.bottom > window.innerHeight) {
+            tooltip.style.top = `${window.innerHeight - tooltipRect.height - 10}px`;
+          }
+        });
+      });
+    });
+    
+    return activityDiv;
+  }
 
   // Initialize app
   checkAuthentication();
