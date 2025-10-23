@@ -1,10 +1,11 @@
 /* Color palette */
 :root {
-  /* Primary colors */
-  --primary: #1a237e;
-  --primary-light: #534bae;
-  --primary-dark: #000051;
-  --primary-text: #ffffff;
+  /* Primary colors - Lime Green (school color) */
+  --primary: #32cd32;
+  --primary-light: #7fff00;
+  --primary-dark: #228b22;
+  --primary-transparent: rgba(50, 205, 50, 0.1);
+  --primary-text: #000000;
 
   /* Secondary colors */
   --secondary: #ff6f00;
@@ -12,14 +13,15 @@
   --secondary-dark: #c43e00;
   --secondary-text: #ffffff;
 
-  /* Neutral colors */
-  --background: #f5f5f5;
-  --surface: #ffffff;
+  /* Neutral colors - White background (school color) */
+  --background: #ffffff;
+  --surface: #fafafa;
   --text-primary: #333333;
   --text-secondary: #666666;
   --border: #e0e0e0;
   --border-light: #f0f0f0;
-  --border-focus: #d0d0d0;
+  --border-focus: #32cd32;
+  --text-shadow-light: rgba(255, 255, 255, 0.5);
 
   /* Feedback colors */
   --success: #2e7d32;
@@ -30,6 +32,40 @@
   --error-light: #ffebee;
   --info: #0c5460;
   --info-light: #d1ecf1;
+}
+
+/* Dark mode colors */
+body.dark-mode {
+  /* Primary colors - slightly adjusted for dark mode */
+  --primary: #3949ab;
+  --primary-light: #6f74dd;
+  --primary-dark: #00227b;
+  --primary-text: #ffffff;
+
+  /* Secondary colors */
+  --secondary: #ff8f00;
+  --secondary-light: #ffc046;
+  --secondary-dark: #c56000;
+  --secondary-text: #ffffff;
+
+  /* Neutral colors */
+  --background: #121212;
+  --surface: #1e1e1e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border: #333333;
+  --border-light: #2a2a2a;
+  --border-focus: #404040;
+
+  /* Feedback colors */
+  --success: #4caf50;
+  --success-light: #1b5e20;
+  --warning: #ffa726;
+  --warning-light: #663c00;
+  --error: #ef5350;
+  --error-light: #7f1d1d;
+  --info: #29b6f6;
+  --info-light: #014361;
 }
 
 * {
@@ -48,6 +84,34 @@ body {
   padding: 12px;
   background-color: var(--background);
   font-size: 0.9rem;
+  position: relative;
+}
+
+/* Animated Git-style branch lines background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-image: 
+    linear-gradient(90deg, transparent 0%, transparent calc(50% - 1px), var(--primary-transparent) calc(50% - 1px), var(--primary-transparent) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(0deg, transparent 0%, transparent calc(25% - 1px), var(--primary-transparent) calc(25% - 1px), var(--primary-transparent) calc(25% + 1px), transparent calc(25% + 1px)),
+    linear-gradient(0deg, transparent 0%, transparent calc(75% - 1px), var(--primary-transparent) calc(75% - 1px), var(--primary-transparent) calc(75% + 1px), transparent calc(75% + 1px));
+  background-size: 200% 200%;
+  animation: gitBranchFlow 20s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes gitBranchFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 header {
@@ -60,17 +124,77 @@ header {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Mascot styles */
+.mascot-container {
+  display: flex;
+  align-items: center;
+}
+
+.mascot {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  animation: mascotBounce 2s ease-in-out infinite;
+}
+
+.mascot-left {
+  animation-delay: 0s;
+}
+
+.mascot-right {
+  animation-delay: 1s;
+}
+
+@keyframes mascotBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Make header title section centered */
+header > h1, header > h2 {
+  margin: 0;
+}
+
+header > h1 {
+  width: 100%;
+  order: 2;
+}
+
+header > h2 {
+  width: 100%;
+  order: 3;
+}
+
+.mascot-container.mascot-left-container {
+  order: 1;
+}
+
+.mascot-container.mascot-right-container {
+  order: 4;
 }
 
 header h1 {
   margin-bottom: 5px;
   font-size: 1.6rem;
+  color: var(--primary-text);
+  text-shadow: 1px 1px 2px var(--text-shadow-light);
 }
 
 header h2 {
   font-size: 1.2rem;
+  color: var(--primary-text);
+  text-shadow: 1px 1px 2px var(--text-shadow-light);
 }
 
 main {
@@ -476,6 +600,28 @@ footer {
   font-size: 0.8rem;
 }
 
+/* Mascot gallery in footer */
+.mascot-gallery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-mascot {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.footer-mascot:hover {
+  transform: scale(1.2) rotate(5deg);
+}
+
 /* Search and Filter Components - Updated for Sidebar */
 .search-box {
   display: flex;
@@ -597,6 +743,53 @@ footer {
   background-color: var(--border-focus);
 }
 
+/* View options toggle */
+.view-options {
+  margin-bottom: 8px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.toggle-container input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.toggle-label {
+  color: var(--text-primary);
+  user-select: none;
+}
+
+/* Group header styles */
+.category-group {
+  margin-bottom: 20px;
+}
+
+.category-group-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--primary);
+  background-color: var(--background);
+  border-radius: 4px;
+}
+
+.category-group-activities {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
 /* Responsive adjustments for mobile */
 @media (max-width: 767px) {
   .sidebar-filters {
@@ -667,4 +860,32 @@ footer {
 
 #logout-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode toggle */
+#dark-mode-toggle {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#dark-mode-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Adjust user controls position when dark mode toggle is present */
+#user-controls {
+  right: 65px;
 }

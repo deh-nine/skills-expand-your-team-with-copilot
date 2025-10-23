@@ -8,8 +8,17 @@
   </head>
   <body>
     <header>
+      <div class="mascot-container mascot-left-container">
+        <img src="images/mascot1.svg" alt="School Mascot" class="mascot mascot-left">
+      </div>
       <h1>Mergington High School</h1>
       <h2>Extracurricular Activities</h2>
+      <div class="mascot-container mascot-right-container">
+        <img src="images/mascot2.svg" alt="School Mascot" class="mascot mascot-right">
+      </div>
+      <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+        <span id="dark-mode-icon">🌙</span>
+      </button>
       <div id="user-controls">
         <div id="user-status">
           <button id="login-button" class="icon-button">
@@ -43,6 +52,16 @@
             </div>
 
             <div class="filter-container">
+              <div class="filter-label">View options:</div>
+              <div class="view-options">
+                <label class="toggle-container">
+                  <input type="checkbox" id="group-by-category" />
+                  <span class="toggle-label">Group by category</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filter-container" id="category-filter-container">
               <div class="filter-label">Filter by category:</div>
               <div class="category-filters" id="category-filters">
                 <button class="category-filter active" data-category="all">
@@ -136,6 +155,13 @@
     </main>
 
     <footer>
+      <div class="mascot-gallery">
+        <img src="images/mascot3.svg" alt="Mascot" class="footer-mascot">
+        <img src="images/mascot4.svg" alt="Mascot" class="footer-mascot">
+        <img src="images/mascot5.svg" alt="Mascot" class="footer-mascot">
+        <img src="images/mascot1.svg" alt="Mascot" class="footer-mascot">
+        <img src="images/mascot2.svg" alt="Mascot" class="footer-mascot">
+      </div>
       <p>&copy; 2023 Mergington High School</p>
     </footer>
 

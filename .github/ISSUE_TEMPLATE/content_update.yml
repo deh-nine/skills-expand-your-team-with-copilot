@@ -1,0 +1,113 @@
+name: Content or Activity Update
+description: Update activity information, text content, or documentation
+title: "[Content]: "
+labels: ["content"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request updates to activity details, website text, or documentation.
+  
+  - type: dropdown
+    id: content-type
+    attributes:
+      label: What type of content needs updating?
+      description: Select the type of content change needed.
+      options:
+        - Activity information (name, description, schedule, etc.)
+        - Website text or wording
+        - Documentation or help text
+        - Error messages
+        - Labels or button text
+        - Other content
+    validations:
+      required: true
+  
+  - type: textarea
+    id: current-content
+    attributes:
+      label: What is the current content?
+      description: Show or describe the content that exists now.
+      placeholder: |
+        For example:
+        Activity Name: Chess Club
+        Description: Learn to play chess
+        Day: Monday
+        Time: 3:00 PM
+    validations:
+      required: true
+  
+  - type: textarea
+    id: new-content
+    attributes:
+      label: What should the content be?
+      description: Provide the exact new content or changes needed.
+      placeholder: |
+        For example:
+        Activity Name: Chess Club - All Levels
+        Description: Learn chess strategy and compete in tournaments. Beginners welcome!
+        Day: Monday and Wednesday
+        Time: 3:00 PM - 4:30 PM
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: content-scope
+    attributes:
+      label: How many items need updating?
+      description: Select the scope of the content change.
+      options:
+        - Single activity or item
+        - Multiple specific activities (list below)
+        - All activities
+        - Website-wide text changes
+        - Documentation pages
+    validations:
+      required: true
+  
+  - type: textarea
+    id: affected-items
+    attributes:
+      label: Which specific items need updating?
+      description: List the specific activities, pages, or sections to update.
+      placeholder: |
+        For example:
+        - Chess Club activity
+        - Drama Club activity
+        - Basketball team activity
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: fields-to-update
+    attributes:
+      label: Which fields or information need updating?
+      description: Select all that apply (for activity updates).
+      options:
+        - label: Activity name
+        - label: Description
+        - label: Category
+        - label: Day/Schedule
+        - label: Time
+        - label: Location/Room
+        - label: Teacher/Advisor
+        - label: Maximum participants
+        - label: Other information
+  
+  - type: textarea
+    id: reason-for-change
+    attributes:
+      label: Why is this change needed?
+      description: Explain the reason for the content update.
+      placeholder: For example, "The schedule changed for next semester" or "The description is outdated"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Information
+      description: Any other details or requirements for this content update?
+    validations:
+      required: false
