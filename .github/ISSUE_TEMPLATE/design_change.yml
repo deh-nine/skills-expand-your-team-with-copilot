@@ -1,0 +1,91 @@
+name: Design or Styling Change
+description: Request changes to colors, layout, fonts, or visual appearance
+title: "[Design]: "
+labels: ["design", "enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request changes to the website's visual appearance, colors, layout, or styling.
+  
+  - type: textarea
+    id: current-design
+    attributes:
+      label: What currently exists?
+      description: Describe what the website looks like now.
+      placeholder: For example, "The header is blue with white text"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: desired-design
+    attributes:
+      label: What should it look like instead?
+      description: Describe the desired appearance or design change.
+      placeholder: For example, "The header should be lime green with white text to match our school colors"
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: design-elements
+    attributes:
+      label: What design elements need to change?
+      description: Select all that apply.
+      options:
+        - label: Colors (background, text, buttons, etc.)
+        - label: Fonts or text sizes
+        - label: Layout or spacing
+        - label: Images or icons
+        - label: Button or link styles
+        - label: Header or footer
+        - label: Responsive design (mobile/tablet view)
+        - label: Other styling
+  
+  - type: dropdown
+    id: affected-pages
+    attributes:
+      label: Which pages or sections should change?
+      description: Select where the design changes should apply.
+      options:
+        - All pages (entire website)
+        - Homepage/Activities List
+        - Activity Details
+        - Header/Navigation
+        - Footer
+        - Filters/Search sidebar
+        - Modals/Popups
+        - Specific section (describe below)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: color-specifications
+    attributes:
+      label: Specific Colors (if applicable)
+      description: Provide exact color values if you have them, or describe the colors.
+      placeholder: |
+        For example:
+        - Primary color: Lime green (#32CD32 or rgb(50, 205, 50))
+        - Secondary color: White (#FFFFFF)
+        - Background: Light gray
+    validations:
+      required: false
+  
+  - type: textarea
+    id: examples
+    attributes:
+      label: Visual Examples
+      description: Provide images, sketches, or links showing what you want.
+      placeholder: Paste screenshots, upload images, or provide links to similar designs.
+    validations:
+      required: false
+  
+  - type: textarea
+    id: additional-requirements
+    attributes:
+      label: Additional Requirements
+      description: Any other design guidelines or constraints?
+      placeholder: For example, "Must be accessible for colorblind students" or "Should work well when printed"
+    validations:
+      required: false

@@ -1,0 +1,66 @@
+name: Bug Report
+description: Report a problem with the Mergington High School Activities website
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us understand and fix the issue.
+  
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: What's wrong?
+      description: Describe the problem you're experiencing in simple terms.
+      placeholder: For example, "The website shows blue colors but our school colors are white and lime green"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What should happen instead?
+      description: Describe what you expected to see or happen.
+      placeholder: For example, "The website should use our school colors - white and lime green"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: How can we see this problem?
+      description: Tell us the steps to see this issue on the website.
+      placeholder: |
+        1. Go to the activities page
+        2. Look at the header
+        3. Notice it's blue instead of lime green
+    validations:
+      required: false
+  
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Which part of the website is affected?
+      description: Select the area where you noticed the problem.
+      options:
+        - Homepage/Activities List
+        - Activity Details
+        - Sign-up/Registration
+        - Filters (category, day, time)
+        - Search
+        - Colors/Styling
+        - Login/Logout
+        - Other
+    validations:
+      required: true
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Information
+      description: Add any other helpful details, screenshots, or examples.
+      placeholder: You can paste images here or add links to examples.
+    validations:
+      required: false
