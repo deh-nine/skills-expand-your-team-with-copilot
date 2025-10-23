@@ -2,11 +2,18 @@
 MongoDB database configuration and setup for Mergington High School API
 """
 
-from pymongo import MongoClient
+try:
+    from pymongo import MongoClient
+    # Try to connect to MongoDB
+    client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=1000)
+    client.server_info()  # Force connection
+except:
+    # Fall back to mongomock if MongoDB is not available
+    import mongomock
+    client = mongomock.MongoClient()
+
 from argon2 import PasswordHasher
 
-# Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
 db = client['mergington_high']
 activities_collection = db['activities']
 teachers_collection = db['teachers']
