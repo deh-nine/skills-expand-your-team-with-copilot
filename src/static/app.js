@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const groupByCheckbox = document.getElementById("group-by-category");
+  const categoryFilterContainer = document.getElementById("category-filter-container");
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -44,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  let groupByCategory = false;
 
   // Authentication state
   let currentUser = null;
@@ -489,14 +492,67 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Display filtered activities
+    // Display filtered activities - either grouped or ungrouped
+    if (groupByCategory) {
+      displayGroupedActivities(filteredActivities);
+    } else {
+      displayUngroupedActivities(filteredActivities);
+    }
+  }
+
+  // Function to display activities grouped by category
+  function displayGroupedActivities(filteredActivities) {
+    // Group activities by category
+    const grouped = {};
+    Object.entries(filteredActivities).forEach(([name, details]) => {
+      const activityType = getActivityType(name, details.description);
+      if (!grouped[activityType]) {
+        grouped[activityType] = [];
+      }
+      grouped[activityType].push({ name, details });
+    });
+
+    // Display each category group - use defined category order
+    const categoryOrder = Object.keys(activityTypes);
+    categoryOrder.forEach((category) => {
+      if (grouped[category] && grouped[category].length > 0) {
+        const categoryInfo = activityTypes[category];
+        
+        // Create category group container
+        const groupContainer = document.createElement("div");
+        groupContainer.className = "category-group";
+        
+        // Create header
+        const groupHeader = document.createElement("div");
+        groupHeader.className = "category-group-header";
+        groupHeader.textContent = `${categoryInfo.label} (${grouped[category].length})`;
+        groupContainer.appendChild(groupHeader);
+        
+        // Create activities container for this group
+        const groupActivities = document.createElement("div");
+        groupActivities.className = "category-group-activities";
+        
+        // Render each activity in this group
+        grouped[category].forEach(({ name, details }) => {
+          const activityCard = createActivityCard(name, details);
+          groupActivities.appendChild(activityCard);
+        });
+        
+        groupContainer.appendChild(groupActivities);
+        activitiesList.appendChild(groupContainer);
+      }
+    });
+  }
+
+  // Function to display activities without grouping
+  function displayUngroupedActivities(filteredActivities) {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
   }
 
-  // Function to render a single activity card
-  function renderActivityCard(name, details) {
+  // Function to create an activity card element (extracted from renderActivityCard)
+  function createActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
 
@@ -610,6 +666,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    return activityCard;
+  }
+
+  // Function to render a single activity card
+  function renderActivityCard(name, details) {
+    const activityCard = createActivityCard(name, details);
     activitiesList.appendChild(activityCard);
   }
 
@@ -636,6 +698,33 @@ document.addEventListener("DOMContentLoaded", () => {
       currentFilter = button.dataset.category;
       displayFilteredActivities();
     });
+  });
+
+  // Helper function to reset category filters to "all"
+  function resetCategoryFilters() {
+    currentFilter = "all";
+    categoryFilters.forEach((btn) => {
+      if (btn.dataset.category === "all") {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  // Add event listener for group by checkbox
+  groupByCheckbox.addEventListener("change", (event) => {
+    groupByCategory = event.target.checked;
+    
+    // When grouping is enabled, hide category filters and reset to "all"
+    if (groupByCategory) {
+      categoryFilterContainer.style.display = "none";
+      resetCategoryFilters();
+    } else {
+      categoryFilterContainer.style.display = "block";
+    }
+    
+    displayFilteredActivities();
   });
 
   // Add event listeners to day filter buttons
