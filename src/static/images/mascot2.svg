@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="80" fill="#7fff00"/>
+  <circle cx="75" cy="85" r="12" fill="white"/>
+  <circle cx="125" cy="85" r="12" fill="white"/>
+  <circle cx="75" cy="85" r="6" fill="black"/>
+  <circle cx="125" cy="85" r="6" fill="black"/>
+  <path d="M 70 120 Q 100 140 130 120" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="70" r="8" fill="white"/>
+  <circle cx="140" cy="70" r="8" fill="white"/>
+  <text x="100" y="180" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#228b22" text-anchor="middle">SPIRIT!</text>
+</svg>
