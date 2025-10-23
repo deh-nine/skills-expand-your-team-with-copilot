@@ -489,8 +489,8 @@ document.addEventListener("DOMContentLoaded", () => {
       grouped[activityType].push({ name, details });
     });
 
-    // Display each category group
-    const categoryOrder = ["sports", "arts", "academic", "community", "technology"];
+    // Display each category group - use defined category order
+    const categoryOrder = Object.keys(activityTypes);
     categoryOrder.forEach((category) => {
       if (grouped[category] && grouped[category].length > 0) {
         const categoryInfo = activityTypes[category];
@@ -677,6 +677,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Helper function to reset category filters to "all"
+  function resetCategoryFilters() {
+    currentFilter = "all";
+    categoryFilters.forEach((btn) => {
+      if (btn.dataset.category === "all") {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
   // Add event listener for group by checkbox
   groupByCheckbox.addEventListener("change", (event) => {
     groupByCategory = event.target.checked;
@@ -684,15 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // When grouping is enabled, hide category filters and reset to "all"
     if (groupByCategory) {
       categoryFilterContainer.style.display = "none";
-      currentFilter = "all";
-      // Reset active state to "all"
-      categoryFilters.forEach((btn) => {
-        if (btn.dataset.category === "all") {
-          btn.classList.add("active");
-        } else {
-          btn.classList.remove("active");
-        }
-      });
+      resetCategoryFilters();
     } else {
       categoryFilterContainer.style.display = "block";
     }
