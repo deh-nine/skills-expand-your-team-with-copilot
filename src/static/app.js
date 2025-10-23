@@ -1022,8 +1022,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     Object.values(activities).forEach(details => {
       if (details.schedule_details) {
-        const startHour = parseInt(details.schedule_details.start_time.split(":")[0]);
-        const endHour = parseInt(details.schedule_details.end_time.split(":")[0]);
+        const startHour = parseInt(details.schedule_details.start_time.split(":")[0], 10);
+        const endHour = parseInt(details.schedule_details.end_time.split(":")[0], 10);
         
         earliestHour = Math.min(earliestHour, startHour);
         latestHour = Math.max(latestHour, endHour);
@@ -1139,7 +1139,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function timeToMinutes(timeStr) {
-    const [hours, minutes] = timeStr.split(":").map(Number);
+    const [hours, minutes] = timeStr.split(":").map(val => parseInt(val, 10));
     return hours * 60 + minutes;
   }
 
@@ -1183,18 +1183,22 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Position tooltip on hover
     activityDiv.addEventListener("mouseenter", (e) => {
-      const rect = activityDiv.getBoundingClientRect();
-      tooltip.style.top = `${rect.top}px`;
-      tooltip.style.left = `${rect.right + 10}px`;
-      
-      // Check if tooltip would go off screen
-      const tooltipRect = tooltip.getBoundingClientRect();
-      if (tooltipRect.right > window.innerWidth) {
-        tooltip.style.left = `${rect.left - tooltipRect.width - 10}px`;
-      }
-      if (tooltipRect.bottom > window.innerHeight) {
-        tooltip.style.top = `${window.innerHeight - tooltipRect.height - 10}px`;
-      }
+      requestAnimationFrame(() => {
+        const rect = activityDiv.getBoundingClientRect();
+        tooltip.style.top = `${rect.top}px`;
+        tooltip.style.left = `${rect.right + 10}px`;
+        
+        // Check if tooltip would go off screen
+        requestAnimationFrame(() => {
+          const tooltipRect = tooltip.getBoundingClientRect();
+          if (tooltipRect.right > window.innerWidth) {
+            tooltip.style.left = `${rect.left - tooltipRect.width - 10}px`;
+          }
+          if (tooltipRect.bottom > window.innerHeight) {
+            tooltip.style.top = `${window.innerHeight - tooltipRect.height - 10}px`;
+          }
+        });
+      });
     });
     
     return activityDiv;
